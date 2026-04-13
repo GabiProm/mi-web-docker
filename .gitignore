@@ -1,0 +1,13 @@
+# Docker
+*.log
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Node / otros (a futuro)
+node_modules/
+``
