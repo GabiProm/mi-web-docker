@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - "v*.*.*"
 
 jobs:
   docker:
@@ -19,8 +21,18 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build Docker image
-        run: docker build -t henryggg/mi-web-docker:latest .
+      - name: Extract version from Git tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
-      - name: Push Docker image
-        run: docker push henryggg/mi-web-docker:latest
+      - name: Build Docker image (versioned)
+        if: env.VERSION != ''
+        run: |
+          docker build -t henryggg/mi-web-docker:${VERSION} .
+          docker tag henryggg/mi-web-docker:${VERSION} henryggg/mi-web-docker:latest
+
+      - name: Push Docker image (versioned)
+        if: env.VERSION != ''
+        run: |
+          docker push henryggg/mi-web-docker:${VERSION}
+          docker push henryggg/mi-web-docker:latest
